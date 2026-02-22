@@ -6,7 +6,7 @@ pluginManagement {
     }
 }
 dependencyResolutionManagement {
-    // Hocam burayı PREFER_SETTINGS yaptık, çakışma çözüldü.
+    // Çatışmayı çözen sihirli satır burası hocam
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         google()
