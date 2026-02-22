@@ -1,14 +1,17 @@
-// Sadece eklenti tanımları kalmalı
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
+    repositories {
+        // Hata buradaydı hocam: Pluginleri indireceği yeri bilmiyordu.
+        google()
+        mavenCentral()
+    }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.2.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
     }
 }
 
-// DİKKAT: Burada 'allprojects { repositories { ... } }' ASLA olmamalı.
-// Eğer varsa o bloğu komple sil hocam.
-
+// allprojects veya task clean bloklarına dokunmana gerek yok, temiz kurulum yapıyoruz.
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
