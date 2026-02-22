@@ -1,31 +1,69 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
-    <uses-permission android:name="android.permission.INTERNET" />
-
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_app_icon" 
+        android:icon="@drawable/ic_app_icon"
         android:label="VergiAI Inspector"
         android:roundIcon="@drawable/ic_app_icon"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Material3.DayNight">
-        
-        <service
-            android:name=".FloatingService"
-            android:enabled="true"
-            android:exported="false" />
+        android:theme="@style/Theme.VergiAI"> ```
 
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-    </application>
-</manifest>
+---
+
+### 4. Düzeltme: MainActivity (İzin Kontrolü Güncellemesi)
+
+Hocam, Overlay izni alırken bazen uygulama geri döndüğünde durumu yenilemez. Kullanıcı deneyimini iyileştirdim.
+
+**Dosya:** `app/src/main/java/com/vergiai/inspector/MainActivity.kt`
+
+```kotlin
+package com.vergiai.inspector
+
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.provider.Settings
+import android.widget.Button
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var statusText: TextView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val btnStart = findViewById<Button>(R.id.btnStartService)
+        statusText = findViewById(R.id.txtStatus)
+
+        btnStart.setOnClickListener {
+            if (!Settings.canDrawOverlays(this)) {
+                requestOverlayPermission()
+            } else {
+                startService(Intent(this, FloatingService::class.java))
+                // Uygulamayı alta al (Home ekranına dön)
+                moveTaskToBack(true)
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (Settings.canDrawOverlays(this)) {
+            statusText.text = "İzin Tamam. Başlat'a basabilirsin."
+            statusText.setTextColor(0xFF00FF00.toInt())
+        } else {
+            statusText.text = "Overlay İzni Bekleniyor..."
+            statusText.setTextColor(0xFFFF0000.toInt())
+        }
+    }
+
+    private fun requestOverlayPermission() {
+        val intent = Intent(
+            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            Uri.parse("package:$packageName")
+        )
+        startActivity(intent)
+    }
+}
