@@ -3,13 +3,14 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "memory.h" // Ortak kütüphaneyi dahil ettik
 
 struct MemoryRegion {
     uintptr_t start;
     uintptr_t end;
 };
 
-// Baran hocam, bu fonksiyon sadece geçerli bellek bölgelerini bulur
+// Yazılabilir bellek bölgelerini bul
 std::vector<MemoryRegion> get_writable_regions(pid_t pid) {
     std::vector<MemoryRegion> regions;
     std::string maps_path = "/proc/" + std::to_string(pid) + "/maps";
@@ -17,7 +18,6 @@ std::vector<MemoryRegion> get_writable_regions(pid_t pid) {
     std::string line;
 
     while (std::getline(maps_file, line)) {
-        // Sadece 'rw' (Read-Write) izni olan bölgeleri tara
         if (line.find("rw-p") != std::string::npos) {
             uintptr_t start, end;
             sscanf(line.c_str(), "%lx-%lx", &start, &end);
@@ -27,18 +27,20 @@ std::vector<MemoryRegion> get_writable_regions(pid_t pid) {
     return regions;
 }
 
-// Global aday listesi (PointerScan temeli)
 std::vector<uintptr_t> g_candidates;
 
 extern "C" JNIEXPORT jint JNICALL
 Java_com_vergiai_inspector_NativeEngine_initialScan(JNIEnv* env, jobject thiz, jint pid, jint target_value) {
     g_candidates.clear();
+    // Eğer PID 0 gelirse (test amaçlı) kendi kendini tarasın
+    if (pid == 0) pid = getpid();
+    
     auto regions = get_writable_regions(pid);
 
     for (const auto& region : regions) {
+        // Hız için 4'er byte atlayarak tara (Int hizalaması)
         for (uintptr_t addr = region.start; addr < region.end - sizeof(int); addr += 4) {
             int val = 0;
-            // read_mem fonksiyonunu bir önceki mesajda vermiştik hocam
             if (read_mem(pid, addr, &val, sizeof(int)) && val == target_value) {
                 g_candidates.push_back(addr);
             }
@@ -46,4 +48,3 @@ Java_com_vergiai_inspector_NativeEngine_initialScan(JNIEnv* env, jobject thiz, j
     }
     return g_candidates.size();
 }
-
