@@ -1,24 +1,15 @@
-// Kök build.gradle dosyası
 buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
+    // Buradaki repositories { google() ... } bloğunu SİLDİK.
+    // Sadece eklentiler (dependencies) kalmalı.
     dependencies {
-        // Android Gradle Plugin sürümü
         classpath 'com.android.tools.build:gradle:8.2.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
     }
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
+// allprojects { repositories { ... } } bloğunu tamamen KALDIRDIK.
+// Çünkü artık settings.gradle içindeki dependencyResolutionManagement bu işi yapıyor.
 
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
-
