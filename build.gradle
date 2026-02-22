@@ -1,14 +1,13 @@
+// Sadece eklenti tanımları kalmalı
 buildscript {
-    // Buradaki repositories { google() ... } bloğunu SİLDİK.
-    // Sadece eklentiler (dependencies) kalmalı.
     dependencies {
         classpath 'com.android.tools.build:gradle:8.2.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
     }
 }
 
-// allprojects { repositories { ... } } bloğunu tamamen KALDIRDIK.
-// Çünkü artık settings.gradle içindeki dependencyResolutionManagement bu işi yapıyor.
+// DİKKAT: Burada 'allprojects { repositories { ... } }' ASLA olmamalı.
+// Eğer varsa o bloğu komple sil hocam.
 
 task clean(type: Delete) {
     delete rootProject.buildDir
