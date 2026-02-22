@@ -5,9 +5,10 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
-    // Çatışmayı çözen sihirli satır burası hocam
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    // Proje içindeki tüm repo tanımlarını buraya zorluyoruz
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
